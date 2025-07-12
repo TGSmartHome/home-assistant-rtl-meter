@@ -1,0 +1,79 @@
+default_config:
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+mqtt:
+  sensor:
+    - name: "Water Meter Raw"
+      unique_id: water_meter_raw
+      state_topic: "rtlamr/1572885774/state"
+      value_template: "{{ value_json.reading | float(0) }}"
+      unit_of_measurement: "m³"
+      device_class: water
+      state_class: total_increasing
+      expire_after: 0
+
+    - name: "Gas Meter Raw"
+      unique_id: gas_meter_raw
+      state_topic: "rtlamr/79344678/state"
+      value_template: "{{ value_json.reading | float(0) }}"
+      unit_of_measurement: "ft³"
+      device_class: gas
+      state_class: total_increasing
+      expire_after: 0
+
+template:
+  - sensor:
+      - name: "Water Meter Clean"
+        unique_id: water_meter_clean
+        unit_of_measurement: "m³"
+        device_class: water
+        state_class: total_increasing
+        state: >
+          {% set raw = states('sensor.water_meter_raw') | float(0) %}
+          {{ (raw * 0.00378541) | round(4) }}
+
+      - name: "Gas Meter CCF"
+        unique_id: gas_meter_ccf
+        unit_of_measurement: "ft³"
+        device_class: gas
+        state_class: total_increasing
+        state: >
+          {% set raw = states('sensor.gas_meter_raw') | float(0) %}
+          {{ (raw * 100) | round(2) }}
+
+utility_meter:
+  water_usage_daily:
+    source: sensor.water_meter_clean
+    cycle: daily
+    delta_values: true
+
+  water_usage_weekly:
+    source: sensor.water_meter_clean
+    cycle: weekly
+    delta_values: true
+
+  water_usage_monthly:
+    source: sensor.water_meter_clean
+    cycle: monthly
+    delta_values: true
+
+  gas_usage_daily:
+    source: sensor.gas_meter_ccf
+    cycle: daily
+    delta_values: true
+
+  gas_usage_weekly:
+    source: sensor.gas_meter_ccf
+    cycle: weekly
+    delta_values: true
+
+  gas_usage_monthly:
+    source: sensor.gas_meter_ccf
+    cycle: monthly
+    delta_values: true
