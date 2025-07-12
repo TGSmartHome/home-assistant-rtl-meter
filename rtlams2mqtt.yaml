@@ -1,0 +1,32 @@
+general:
+  sleep_for: 0
+  verbosity: debug
+custom_parameters:
+  rtltcp: "-s 2048000"
+  rtlamr: "-unique=true"
+mqtt:
+  ha_autodiscovery_topic: homeassistant
+  ha_status_topic: homeassistant/status
+  base_topic: rtlamr
+  ha_autodiscovery: true
+  tls_enabled: false
+  retain: true
+meters:
+  - id: 1572885774
+    protocol: r900
+    name: water
+    format: "######.###"
+    device_class: water
+    unit_of_measurement: m³
+    state_class: total_increasing
+    expire_after: 0
+    force_update: true
+  - id: 79344678
+    protocol: scm+
+    name: gas
+    format: "######.##"
+    device_class: gas
+    unit_of_measurement: ft³
+    state_class: total_increasing
+    expire_after: 0
+    force_update: true
